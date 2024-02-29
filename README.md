@@ -1,8 +1,7 @@
 - 👋 Hi, I’m vishal 
-- 👀 I’m interested in 
-- 🌱 I’m currently learning JavaScript and HTML 
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me ...
+- 👀 I’m interested in application development roles
+- 🌱 I’m currently seeking opportunities to grow and contribute
+- 📫 Reach me on vishalreddy1056@gmail.com
 
 <!---
 vishalpalla2000/vishalpalla2000 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
