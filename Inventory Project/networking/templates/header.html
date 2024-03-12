@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- Additional CSS styles here -->
+    <style>
+        /* Red Header Styles */
+        .red-header {
+            background-color: red;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        /* Adjust Logo Size */
+        .logo {
+            max-width: 100px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Red Header with Centered Logo -->
+    <div class="red-header">
+        <img src="{% static 'images/logo.png' %}" alt="Your Logo" class="img-fluid logo">
+    </div>
+
+    <!-- Content Container -->
+    <div class="container-fluid">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap and Additional JavaScript -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- Additional JavaScript scripts here -->
+</body>
+</html>

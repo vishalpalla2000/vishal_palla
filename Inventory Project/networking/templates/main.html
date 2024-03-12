@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <span class="menu-toggle" id="menuToggle">&#9776; Menu</span>
+        <div class="menu-items" id="menuItems">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Welcome</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Report</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Page-specific content goes here -->
+    <div class="container mt-3">
+        {% block page_content %}
+        {% endblock %}
+    </div>
+
+    <!-- JavaScript for menu toggle -->
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const menuItems = document.getElementById('menuItems');
+
+        menuToggle.addEventListener('click', function () {
+            menuItems.classList.toggle('active');
+        });
+    </script>
+{% endblock %}

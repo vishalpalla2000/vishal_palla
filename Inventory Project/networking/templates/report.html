@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Report{% endblock %}
+{% block content %}
+    <h1>Report</h1>
+    <div class="export-buttons">
+        <a href="#" id="exportPdfButton">Export PDF</a>
+    </div>
+    <!-- Add your report content here -->
+
+    <div class="form-group">
+        <label for="yearSelect">Select the Year of Expiry:</label>
+        <select class="form-control" id="yearSelect">
+            <option value="">Select Year</option>
+            {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div id="reportContent">
+        <!-- Content to be updated dynamically based on the selected year -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // JavaScript code to handle year selection change
+        $(document).ready(function () {
+            $('#yearSelect').change(function () {
+                var selectedYear = $(this).val();
+                if (selectedYear !== "") {
+                    // Fetch and display content based on the selected year using AJAX
+                    $.get('/get_expirations/', { year: selectedYear }, function (data) {
+                        // Process and display the data for expiring UPS and battery in a table
+                        var expirationTable = '<table class="table table-bordered">';
+                        expirationTable += '<thead>';
+                        expirationTable += '<tr>';
+                        expirationTable += '<th>Product</th>';
+                        expirationTable += '<th>IP Address</th>';
+                        expirationTable += '<th>Expiry Date</th>';
+                        expirationTable += '<th>Remaining Days</th>';
+                        expirationTable += '<th>UPS Type/Battery Type</th>';
+                        expirationTable += '<th>price</th>';
+                        expirationTable += '</tr>';
+                        expirationTable += '</thead>';
+                        expirationTable += '<tbody>';
+
+                        for (var entry of data.expiring_battery) {
+                            expirationTable += '<tr>';
+                            expirationTable += '<td>Battery</td>';
+                            expirationTable += '<td>' + entry.ip_address + '</td>';
+                            expirationTable += '<td>' + entry.battery_expiry_date + '</td>';
+                            expirationTable += '<td>' + entry.battery_remaining_days + ' days</td>';
+                            expirationTable += '<td>' + entry.battery_type + '</td>';
+                            expirationTable += '<td>' + entry.battery_product_price + '</td>';
+                            expirationTable += '</tr>';
+                        }
+
+                        for (var entry of data.expiring_ups) {
+                            expirationTable += '<tr>';
+                            expirationTable += '<td>UPS</td>';
+                            expirationTable += '<td>' + entry.ip_address + '</td>';
+                            expirationTable += '<td>' + entry.ups_expiry_date + '</td>';
+                            expirationTable += '<td>' + entry.ups_remaining_days + ' days</td>';
+                            expirationTable += '<td>' + entry.ups_type + '</td>';
+                            expirationTable += '<td>' + entry.ups_product_price + '</td>';
+                            expirationTable += '</tr>';
+                        }
+
+                        expirationTable += '</tbody>';
+                        expirationTable += '</table>';
+
+                        // Update the 'reportContent' div with the formatted table
+                        var content = '<h2>Expiring UPS and Battery</h2>' + expirationTable;
+                        $('#reportContent').html(content);
+                    });
+                } else {
+                    // Clear the content when no year is selected
+                    $('#reportContent').empty();
+                }
+            });
+
+            $('#exportPdfButton').click(function () {
+                var selectedYear = $('#yearSelect').val();
+                if (selectedYear !== "") {
+                    // Open the export PDF view in a new tab with the selected year
+                    window.open(`/export_pdf/${selectedYear}`);
+                } else {
+                    alert("Please select a year before exporting.");
+                }
+            });
+        });
+    </script>
+{% endblock %}

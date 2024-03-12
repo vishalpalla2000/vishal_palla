@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+{% block content %}
+
+<style>
+    /* Custom style for square cards */
+    .square-card {
+        background-color: black;
+        color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+        margin-top: 20px;
+        width: 250px;
+    }
+    .table-scroll-container {
+        overflow-x: auto;
+    }
+      table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table, th, td {
+    border: 1px solid black;
+  }
+  th, td {
+    padding: 10px;
+    text-align: left;
+  }
+  .green {
+    background-color: green !important;
+  }
+  .yellow {
+    background-color: yellow !important;
+  }
+  .red {
+    background-color: red !important;
+  }
+</style>
+
+<h1>Dashboard</h1>
+
+<div class="container">
+    <!-- Filter option for selecting the year of expiry -->
+    <div class="form-group row">
+        <label for="expiryYearSelect" class="col-sm-3 col-form-label">Select the Year of Expiry:</label>
+        <div class="col-sm-2">
+            <select class="form-control" id="expiryYearSelect">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="square-card" id="upsSquareCard">
+                <h5>UPS</h5>
+                <p id="upsCount">Value 1</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="square-card" id="batterySquareCard">
+                <h5>Battery</h5>
+                <p id="batteryCountexp">Value 2</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+
+   <div class="table-header">
+    {% if request.user.is_superuser or request.user.is_staff %}
+    <button class="btn btn-primary edit-button-header float-end" data-bs-toggle="modal" data-bs-target="#editPopup" onclick="clearForm()">Edit</button>
+    {% endif %}
+    <h2>Data Table</h2>
+    </div>
+
+    <div class="table-scroll-container" id="DataTable">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <!-- Your table headers here -->
+                    <tr>
+                        <th>Serial No</th>
+                        <th>IP Address</th>
+                        <th>Model</th>
+                        <th>UPS Type</th>
+                        <th>Battery Capacity</th>
+                        <th>Building Name</th>
+                        <th>LAN Room</th>
+                        <th>Battery Installed Date</th>
+                        <th>UPS Installed Date</th>
+                        <th>Battery Count</th>
+                        <th>Management</th>
+                        <th>Last Modified User</th>
+                        <th>Last Modified Date</th>
+                        <th>Room Temperature</th>
+                        <th>Battery Type</th>
+                        <th>Battery Status</th>
+                        <th>UPS Status</th>
+                        <!-- Add more table headers as needed -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                        <tr>
+                            <!-- Your table cells here -->
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ item.ip_address }}</td>
+                            <td>{{ item.model }}</td>
+                            <td>{{ item.ups_type }}</td>
+                            <td>{{ item.battery_capacity }}</td>
+                            <td>{{ item.building_name }}</td>
+                            <td>{{ item.lan_room }}</td>
+                            <td>{{ item.battery_installed_date }}</td>
+                            <td>{{ item.ups_installed_date }}</td>
+                            <td>{{ item.battery_count }}</td>
+                            <td>{{ item.management }}</td>
+                            <td>{{ item.last_modified_user }}</td>
+                            <td>{{ item.last_modified_date }}</td>
+                            <td>{{ item.room_temperature }}</td>
+                            <td>{{ item.battery_type }}</td>
+                            <td class="batteryStatus"></td>
+                            <td class="upsStatus"></td>
+                            <!-- Add more table cells for other attributes -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Edit Popup Modal -->
+<div class="modal fade" id="editPopup" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" method="post">
+                    {% csrf_token %} <!-- Include the CSRF token here -->
+                    <label for="ipAddressSelect">IP Address:</label>
+                    <select class="form-select" id="ipAddressSelect">
+                        <!-- Options for IP addresses will be populated dynamically -->
+                    </select>
+                    <label for="building">Building Name:</label>
+                    <input type="text" class="form-control" id="building" name="building">
+                    <label for="lanRoom">LAN Room:</label>
+                    <input type="text" class="form-control" id="lanRoom" name="lanRoom">
+                    <label for="batteryInstalledDate">Battery Installed Date:</label>
+                    <input type="date" class="form-control" id="batteryInstalledDate" name="batteryInstalledDate">
+                    <label for="upsInstalledDate">UPS Installed Date:</label>
+                    <input type="date" class="form-control" id="upsInstalledDate" name="upsInstalledDate">
+                    <label for="batteryCount">Battery Count:</label>
+                    <input type="number" class="form-control" id="batteryCount" name="batteryCount">
+                    <label for="management">Management:</label>
+                    <input type="text" class="form-control" id="management" name="management">
+                    <label for="batteryType">Battery Type:</label>
+                    <input type="text" class="form-control" id="batteryType" name="batteryType">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveChanges">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ipAddressSelect = document.getElementById("ipAddressSelect");
+    const ipAddresses = Array.from(document.querySelectorAll("table tbody tr td:nth-child(2)")).map(ip => ip.textContent);
+
+    ipAddresses.forEach((ip) => {
+        const option = document.createElement("option");
+        option.value = ip;
+        option.textContent = ip;
+        ipAddressSelect.appendChild(option);
+    });
+
+    // Event listener for IP address select change
+    ipAddressSelect.addEventListener("change", function () {
+        const selectedIP = $(this).val();
+
+        // Fetch the data from the Manual table for the selected IP address
+        $.ajax({
+            url: "{% url 'get_manual_data' %}", // Use the correct URL here
+            method: "GET",
+            data: { ip: selectedIP },
+            success: function (data) {
+                console.log(data);
+                if (data.exists !== undefined && data.exists === false) {
+                    // Handle case where no data was found for the selected IP
+                    console.log('No data found for IP: ' + selectedIP);
+                } else {
+                    // Populate the form fields with the retrieved data
+                    $("#building").val(data.building_name);
+                    $("#lanRoom").val(data.lan_room);
+                    $("#batteryInstalledDate").val(data.battery_installed_date);
+                    $("#upsInstalledDate").val(data.ups_installed_date);
+                    $("#batteryCount").val(data.battery_count);
+                    $("#management").val(data.management);
+                    $("#batteryType").val(data.battery_type);
+
+                    // Show the edit popup
+                    $("#editPopup").modal("show");
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+
+    // Function to calculate and update UPS and Battery counts
+    function updateCounts(selectedYear) {
+        const today = new Date();
+
+        const upsSquareCard = document.getElementById("upsSquareCard");
+        const batterySquareCard = document.getElementById("batterySquareCard");
+        let upsCount = 0;
+        let batteryCountexp = 0;
+
+        // Iterate over table rows and calculate counts
+        const tableRows = document.querySelectorAll("table tbody tr");
+        tableRows.forEach((row) => {
+            const upsInstalledDate = new Date(row.querySelector("td:nth-child(9)").textContent);
+            const batteryInstalledDate = new Date(row.querySelector("td:nth-child(8)").textContent);
+
+            // Calculate the expiration date for UPS and Battery
+            const upsExpirationDate = new Date(upsInstalledDate);
+            const batteryExpirationDate = new Date(batteryInstalledDate);
+
+            upsExpirationDate.setFullYear(upsExpirationDate.getFullYear() + 5); // UPS expires in 5 years
+            batteryExpirationDate.setFullYear(batteryExpirationDate.getFullYear() + 2); // Battery expires in 2 years
+
+            // Calculate the time difference in days
+            const upsDays = Math.floor((upsExpirationDate - today) / (1000 * 60 * 60 * 24));
+            const batteryDays = Math.floor((batteryExpirationDate - today) / (1000 * 60 * 60 * 24));
+
+            // Check if the expiration dates are within the selected number of days
+            if (upsDays <= selectedYear * 365) {
+                upsCount++;
+            }
+
+            if (batteryDays <= selectedYear * 365) {
+                batteryCountexp++;
+            }
+        });
+
+        upsSquareCard.querySelector("#upsCount").textContent = upsCount.toString();
+        batterySquareCard.querySelector("#batteryCountexp").textContent = batteryCountexp.toString();
+    }
+
+    // Event listener for the select box change
+    const expiryYearSelect = document.getElementById("expiryYearSelect");
+    expiryYearSelect.addEventListener("change", (event) => {
+        const selectedYear = parseInt(event.target.value);
+        updateCounts(selectedYear);
+    });
+
+    $("#saveChanges").on("click", function () {
+        var selectedIP = $("#ipAddressSelect").val();
+        var form = $("#editForm");
+        var formData = form.serialize() + "&selected_ip=" + selectedIP; // Updated key to "selected_ip"
+
+        // Send the data to the server to save
+        $.ajax({
+            url: "{% url 'update_manual_data' %}",
+            method: "POST",
+            data: formData,
+            success: function (response) {
+                console.log(response);
+                $("#editPopup").modal("hide");
+                location.reload();
+
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+
+    // Initial update of counts when the page loads
+    updateCounts(1);
+
+</script>
+<script>
+function formatDateDifference(date1, date2) {
+  var diff = date2 - date1;
+  var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  var months = Math.floor(days / 30);
+  var years = Math.floor(months / 12);
+  months = months % 12;
+  days = days % 30;
+
+  var remainingText = years + " Years, " + months + " Months, " + days + " Days Remaining";
+  if (diff < 0) {
+    remainingText = "Overdue by " + Math.abs(years) + " Years, " + Math.abs(months) + " Months, " + Math.abs(days) + " Days";
+  }
+  return remainingText;
+}
+
+function calculateStatus(installedDate, currentDate, yearsDue) {
+  var dueDate = new Date(installedDate);
+  dueDate.setFullYear(dueDate.getFullYear() + yearsDue);
+  var difference = dueDate.getTime() - currentDate.getTime();
+
+  var statusText = formatDateDifference(currentDate, dueDate);
+  var className = "green";
+  if (difference < 0) {
+    className = "red";
+  } else if (yearsDue === 5 && difference <= 15 * (1000 * 60 * 60 * 24)) {
+    className = "yellow";
+  }
+  return { text: statusText, className: className };
+}
+
+function updateStatusColors() {
+  var table = document.getElementById("DataTable");
+  var rows = table.getElementsByTagName("tr");
+  var currentDate = new Date();
+
+  for (var i = 1; i < rows.length; i++) {
+    var batteryInstalledDateCell = rows[i].getElementsByTagName("td")[7];
+    var upsInstalledDateCell = rows[i].getElementsByTagName("td")[8];
+    var batteryStatusCell = rows[i].getElementsByClassName("batteryStatus")[0];
+    var upsStatusCell = rows[i].getElementsByClassName("upsStatus")[0];
+
+    var batteryStatus = calculateStatus(new Date(batteryInstalledDateCell.textContent), currentDate, 2);
+    batteryStatusCell.textContent = batteryStatus.text;
+    batteryStatusCell.className = batteryStatusCell.className.replace(/green|yellow|red/, '') + " " + batteryStatus.className;
+
+    var upsStatus = calculateStatus(new Date(upsInstalledDateCell.textContent), currentDate, 5);
+    upsStatusCell.textContent = upsStatus.text;
+    upsStatusCell.className = upsStatusCell.className.replace(/green|yellow|red/, '') + " " + upsStatus.className;
+  }
+
+}
+
+window.onload = updateStatusColors;
+window.addEventListener('load', updateStatusColors);
+
+
+</script>
+{% endblock %}

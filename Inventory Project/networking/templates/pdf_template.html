@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expiring UPS and Battery Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Expiring UPS and Battery Report</h1>
+    <h2>Selected Year: {{ selected_year }}</h2>
+
+    <!-- Display expiring UPS and Battery entries in a single table -->
+    <table>
+        <thead>
+            <tr>
+                <th>S.no</th>
+                <th>Product</th>
+                <th>IP Address</th>
+                <th>Expiry Date</th>
+                <th>Remaining Days</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% with overall_counter=1 %}
+                {% for entry in expiring_ups %}
+                    <tr>
+                        <td>{{ overall_counter }}</td>
+                        <td>UPS</td>
+                        <td>{{ entry.ip_address }}</td>
+                        <td>{{ entry.ups_expiry_date }}</td>
+                        <td>{{ entry.ups_remaining_days }} days</td>
+                        <td>{{ entry.ups_type }}</td>
+                    </tr>
+                    {% with overall_counter=forloop.counter|add:1 %}
+                    {% endwith %}
+                {% endfor %}
+
+                {% for entry in expiring_battery %}
+                    <tr>
+                        <td>{{ overall_counter }}</td>
+                        <td>Battery</td>
+                        <td>{{ entry.ip_address }}</td>
+                        <td>{{ entry.battery_expiry_date }}</td>
+                        <td>{{ entry.battery_remaining_days }} days</td>
+                        <td>{{ entry.battery_type }}</td>
+                    </tr>
+                    {% with overall_counter=forloop.counter|add:1 %}
+                    {% endwith %}
+                {% endfor %}
+            {% endwith %}
+        </tbody>
+    </table>
+</body>
+</html>
